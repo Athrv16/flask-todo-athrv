@@ -85,8 +85,8 @@
                             <td>{{ Todo.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
                             
                             <td>
-                                <a href="/update/{{Todo.srno}}" class="btn btn-outline-success btn-sm mx-1" onclick="showToast('Task Updated!')">✏️ Update</a>
-                                <button class="btn btn-outline-danger btn-sm mx-1" onclick="confirmDelete('{{Todo.srno}}')">🗑️ Delete</button>
+                                <a href="/update/{{Todo._id}}" class="btn btn-outline-success btn-sm mx-1" onclick="showToast('Task Updated!')">✏️ Update</a>
+                                <button class="btn btn-outline-danger btn-sm mx-1" onclick="confirmDelete('{{Todo._id}}')">🗑️ Delete</button>
                             </td>
                         </tr>
                         {% endfor %}
