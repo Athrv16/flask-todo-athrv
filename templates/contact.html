@@ -1,84 +1,225 @@
 {% extends 'base.html' %}
 {% block body %}
-<style>
-    body {
-        margin-bottom: 100px;
-    }
-    .contact-banner {
-        position: relative;
-        width: 100%;
-        max-height: 500px;
-        overflow: hidden;
-    }
-    .contact-banner img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;  /* Fills container, may crop */
-  }
-  
-  @media (min-width: 768px) {
-      .contact-banner img {
-          height: 400px; /* Set a height for larger screens */
-      }
-  }
-  
-  
-    .form-label-overlay {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        background: rgba(0,0,0,0.5);
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-    }
-    .contact-form {
-        margin: 0 auto;
-        max-width: 600px;
-    }
-</style>
 
-<div class="container-fluid px-0 contact-banner">
-    <img src="/static/img/contact.avif" alt="Contact Us" class="img-fluid w-100">
-    <div class="form-label-overlay">
-        <h2>Contact Us</h2>
-        <p>Fill out the form below and we’ll get back to you!</p>
+<div class="container my-3 my-md-4 px-3" style="max-width: 900px;">
+
+    <div class="page-header">
+        <h1><i class="fas fa-envelope me-2"></i>Contact Us</h1>
+        <p>Have a question or feedback? We'd love to hear from you.</p>
+    </div>
+
+    <div class="row g-3 g-md-4">
+        <!-- Info Panel -->
+        <div class="col-12 col-md-5 anim-slide-left anim-delay-1">
+            <div class="app-card p-4 h-100" style="background:linear-gradient(135deg,#3d4a6b,var(--primary-dark));color:#d4dae4;border:none;">
+                <h5 class="fw-bold mb-4" style="color:#e8ecf1;"><i class="fas fa-headset me-2"></i>Get in Touch</h5>
+
+                <div class="mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;" class="me-3">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <small style="opacity:0.7;">Email</small><br>
+                            <span style="font-weight:600;">atharvakantode914@gmail.com</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;" class="me-3">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <small style="opacity:0.7;">Response Time</small><br>
+                            <span style="font-weight:600;">Within 24 hours</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border-color:rgba(255,255,255,0.15);">
+                <p style="font-size:0.85rem;opacity:0.75;margin-bottom:0;">
+                    We value your feedback and strive to make Daily Flow better every day.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="col-12 col-md-7 anim-slide-right anim-delay-2">
+            <div class="app-card p-3 p-md-4">
+                <h5 class="fw-bold mb-3">Send a Message</h5>
+                <form method="POST" action="/contact" id="contactForm" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-semibold">
+                            <i class="fas fa-user me-1 text-muted" style="font-size:0.82rem;"></i>Full Name
+                        </label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="John Doe" required
+                               minlength="2" maxlength="100"
+                               pattern="[A-Za-z\s\.\-']+"
+                               title="Only letters, spaces, dots, hyphens and apostrophes">
+                        <div class="invalid-feedback" id="nameFeedback"></div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-sm-6">
+                            <label for="phone" class="form-label fw-semibold">
+                                <i class="fas fa-phone me-1 text-muted" style="font-size:0.82rem;"></i>Phone
+                                <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                   placeholder="+91 98765 43210"
+                                   pattern="[\d\s\+\-\(\)]{7,20}"
+                                   title="Enter a valid phone number (7–20 digits)">
+                            <div class="invalid-feedback" id="phoneFeedback"></div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-1 text-muted" style="font-size:0.82rem;"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="you@example.com" required
+                                   maxlength="254">
+                            <div class="invalid-feedback" id="emailFeedback"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="query" class="form-label fw-semibold">
+                            <i class="fas fa-message me-1 text-muted" style="font-size:0.82rem;"></i>Message
+                        </label>
+                        <textarea class="form-control" id="query" name="query" rows="4"
+                                  placeholder="Describe your question, feedback, or issue in detail..."
+                                  required minlength="10" maxlength="2000"></textarea>
+                        <div class="d-flex justify-content-between mt-1">
+                            <div class="invalid-feedback d-block" id="queryFeedback" style="font-size:0.75rem;"></div>
+                            <div style="font-size:0.73rem;color:var(--text-light);" id="charCount">0 / 2000</div>
+                        </div>
+                        <div class="mt-1" style="font-size:0.73rem;color:var(--text-light);">
+                            We'll respond within 24 hours to the email you provide.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-app w-100 py-2" id="contactSubmitBtn">
+                        <i class="fas fa-paper-plane me-1"></i>Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="container mt-5">
-    <form class="contact-form" method="post" action="/contact">
+<script>
 
-        <div class="form-group mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name">
-        </div>
+    (function() {
+    const form = document.getElementById('contactForm');
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const emailInput = document.getElementById('email');
+    const queryInput = document.getElementById('query');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('contactSubmitBtn');
 
-        <div class="form-group mb-3">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number">
-        </div>
+    // ── Character counter ──
+    queryInput.addEventListener('input', () => {
+        const len = queryInput.value.length;
+        charCount.textContent = `${len} / 2000`;
+        charCount.style.color = len > 1900 ? 'var(--danger)' : len > 1500 ? 'var(--accent)' : 'var(--text-light)';
+        clearError(queryInput, 'queryFeedback');
+    });
 
-        <div class="form-group mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email">
-        </div>
+    // ── Real-time clear errors on input ──
+    nameInput.addEventListener('input', () => clearError(nameInput, 'nameFeedback'));
+    phoneInput.addEventListener('input', () => clearError(phoneInput, 'phoneFeedback'));
+    emailInput.addEventListener('input', () => clearError(emailInput, 'emailFeedback'));
 
-        <div class="form-group mb-3">
-            <label for="query" class="form-label">Tell me about your query</label>
-            <textarea class="form-control" id="query" name="query" placeholder="Enter your query" rows="3"></textarea>
-        </div>
+    function setError(input, feedbackId, msg) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+        document.getElementById(feedbackId).textContent = msg;
+    }
 
-        <div class="button">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
+    function setValid(input, feedbackId) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        document.getElementById(feedbackId).textContent = '';
+    }
 
-    </form>
-</div>
+    function clearError(input, feedbackId) {
+        input.classList.remove('is-invalid');
+        document.getElementById(feedbackId).textContent = '';
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-    crossorigin="anonymous"></script>
+    // ── Validate on blur ──
+    nameInput.addEventListener('blur', () => {
+        const v = nameInput.value.trim();
+        if (!v) setError(nameInput, 'nameFeedback', 'Name is required.');
+        else if (v.length < 2) setError(nameInput, 'nameFeedback', 'Name must be at least 2 characters.');
+        else if (!/^[A-Za-z\s.\-']+$/.test(v)) setError(nameInput, 'nameFeedback', 'Only letters, spaces, dots, hyphens allowed.');
+        else setValid(nameInput, 'nameFeedback');
+    });
+
+    emailInput.addEventListener('blur', () => {
+        const v = emailInput.value.trim();
+        if (!v) setError(emailInput, 'emailFeedback', 'Email is required.');
+        else if (!/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(v)) setError(emailInput, 'emailFeedback', 'Please enter a valid email address.');
+        else setValid(emailInput, 'emailFeedback');
+    });
+
+    phoneInput.addEventListener('blur', () => {
+        const v = phoneInput.value.trim();
+        if (v && !/^[\d\s\+\-\(\)]{7,20}$/.test(v)) setError(phoneInput, 'phoneFeedback', 'Enter a valid phone number (7–20 digits).');
+        else if (v) setValid(phoneInput, 'phoneFeedback');
+        else clearError(phoneInput, 'phoneFeedback');
+    });
+
+    queryInput.addEventListener('blur', () => {
+        const v = queryInput.value.trim();
+        if (!v) setError(queryInput, 'queryFeedback', 'Message is required.');
+        else if (v.length < 10) setError(queryInput, 'queryFeedback', `At least 10 characters needed (${v.length} entered).`);
+        else setValid(queryInput, 'queryFeedback');
+    });
+
+    // ── Form submit validation ──
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+
+        // Name
+        const name = nameInput.value.trim();
+        if (!name || name.length < 2 || !/^[A-Za-z\s.\-']+$/.test(name)) {
+            nameInput.dispatchEvent(new Event('blur'));
+            valid = false;
+        }
+
+        // Email
+        const email = emailInput.value.trim();
+        if (!email || !/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            emailInput.dispatchEvent(new Event('blur'));
+            valid = false;
+        }
+
+        // Phone (optional but validate if filled)
+        const phone = phoneInput.value.trim();
+        if (phone && !/^[\d\s\+\-\(\)]{7,20}$/.test(phone)) {
+            phoneInput.dispatchEvent(new Event('blur'));
+            valid = false;
+        }
+
+        // Message
+        const query = queryInput.value.trim();
+        if (!query || query.length < 10) {
+            queryInput.dispatchEvent(new Event('blur'));
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstErr = form.querySelector('.is-invalid');
+            if (firstErr) firstErr.focus();
+            return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Sending...';
+    });
+})();
+</script>
+
 {% endblock body %}

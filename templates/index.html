@@ -1,149 +1,583 @@
 {% extends 'base.html' %}
 {% block body %}
-<style>
-    body {
-        background: linear-gradient(135deg, #e3f2fd, #ffffff);
-    }
-    .header-section {
-        background: linear-gradient(135deg, #0d6efd, #6610f2);
-        color: white;
-        border-radius: 12px;
-        padding: 20px 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .form-section, .list-section {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        margin-bottom: 30px;
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, #0d6efd, #6610f2);
-        border: none;
-    }
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #6610f2, #0d6efd);
-    }
-    .btn-outline-success, .btn-outline-danger {
-        border-radius: 20px;
-    }
-    .toast-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-    }
-</style>
 
-<div class="container my-4">
-    <div class="header-section text-center">
-        <h1 class="display-5 fw-bold mb-0">📋 To-Do List Manager</h1>
-        <p class="lead mb-0">Efficiently manage your daily tasks</p>
+<div class="container my-3 my-md-4">
+
+    <div class="page-header">
+        <h1><i class="fas fa-clipboard-list me-2"></i>My Tasks</h1>
+        <p>Welcome back, <strong>{{ current_user.username }}</strong>! Stay on top of your day.</p>
     </div>
 
-    <div class="form-section">
-        <h2 class="mb-3">➕ Add a New To-Do</h2>
-        <form action="/" method="POST">
-            <div class="mb-3">
-                <label for="title" class="form-label">To-Do Title</label>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Enter a task title" required>
+    <!-- Stats Bar -->
+    <div class="app-card p-3 mb-3 anim-fade-up anim-delay-1">
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="stat-badge stat-total" id="statTotal">{{ total }}</span>
+                <span style="font-size:0.82rem;color:var(--text-muted);">Total</span>
             </div>
-            <div class="mb-3">
-                <label for="desc" class="form-label">Description of your To-Do</label>
-                <input type="text" class="form-control" name="desc" id="desc" placeholder="Enter a description" required>
+            <div class="d-flex align-items-center gap-2">
+                <span class="stat-badge stat-done" id="statDone">{{ completed }}</span>
+                <span style="font-size:0.82rem;color:var(--success);">Completed</span>
             </div>
-            <button type="submit" class="btn btn-primary" onclick="showToast('Task Added Successfully!')">Add Task</button>
-        </form>
+            <div class="d-flex align-items-center gap-2">
+                <span class="stat-badge stat-pending" id="statPending">{{ pending }}</span>
+                <span style="font-size:0.82rem;color:var(--accent);">Pending</span>
+            </div>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width:{{ (completed / total * 100)|round(1) if total > 0 else 0 }}%"></div>
+        </div>
+        <div id="progressText" style="font-size:0.72rem;color:var(--text-light);margin-top:4px;">
+            {{ (completed / total * 100)|round(1) if total > 0 else 0 }}% complete
+        </div>
     </div>
 
-    <div class="list-section">
-        <h2 class="mb-3">📜 Your To-Do List</h2>
-        {% if allToDo|length == 0 %}
-            <div class="alert alert-dark my-3" role="alert">
-                <strong>No To-Do items found. Please add some tasks!</strong>
+    <!-- Search & Filter Bar -->
+    <div class="app-card p-3 mb-3 anim-fade-up anim-delay-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <div class="position-relative">
+                    <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:0.82rem;"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search tasks..."
+                           value="{{ search }}" style="padding-left:34px;">
+                </div>
             </div>
-        {% else %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle text-center">
-                    <thead class="table-primary">
-                        <tr>
-                            <th scope="col">Sr No.</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Time Added</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for Todo in allToDo %}
-                        <tr>
-                            <th scope="row">{{ loop.index }}</th>
-                            <td>{{ Todo.title }}</td>
-                            <td>{{ Todo.desc }}</td>
-                            <td>{{ Todo.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
-                            
-                            <td>
-                                <a href="/update/{{Todo._id}}" class="btn btn-outline-success btn-sm mx-1" onclick="showToast('Task Updated!')">✏️ Update</a>
-                                <button class="btn btn-outline-danger btn-sm mx-1" onclick="confirmDelete('{{Todo._id}}')">🗑️ Delete</button>
-                            </td>
-                        </tr>
+            <div class="col-6 col-md-2">
+                <select class="form-control" id="filterStatus">
+                    <option value="all" {{ 'selected' if filter_status=='all' }}>All Status</option>
+                    <option value="pending" {{ 'selected' if filter_status=='pending' }}>Pending</option>
+                    <option value="completed" {{ 'selected' if filter_status=='completed' }}>Completed</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select class="form-control" id="filterPriority">
+                    <option value="all" {{ 'selected' if filter_priority=='all' }}>All Priority</option>
+                    <option value="high" {{ 'selected' if filter_priority=='high' }}>High</option>
+                    <option value="medium" {{ 'selected' if filter_priority=='medium' }}>Medium</option>
+                    <option value="low" {{ 'selected' if filter_priority=='low' }}>Low</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select class="form-control" id="filterCategory">
+                    <option value="all" {{ 'selected' if filter_category=='all' }}>All Category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {{ 'selected' if filter_category==cat }}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select class="form-control" id="filterSort">
+                    <option value="order" {{ 'selected' if sort_by=='order' }}>Custom Order</option>
+                    <option value="date_desc" {{ 'selected' if sort_by=='date_desc' }}>Newest First</option>
+                    <option value="date_asc" {{ 'selected' if sort_by=='date_asc' }}>Oldest First</option>
+                    <option value="due_date" {{ 'selected' if sort_by=='due_date' }}>Due Date</option>
+                    <option value="priority" {{ 'selected' if sort_by=='priority' }}>Priority</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Toggle -->
+    <div class="d-flex justify-content-end mb-3 anim-fade-up anim-delay-3">
+        <button class="btn btn-app" type="button" data-bs-toggle="collapse" data-bs-target="#addTaskForm">
+            <i class="fas fa-plus me-1"></i>New Task
+        </button>
+    </div>
+
+    <!-- Add Task Form (AJAX) -->
+    <div class="collapse mb-4" id="addTaskForm">
+        <div class="app-card p-3 p-md-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2" style="color:var(--primary);"></i>Add a New Task</h5>
+
+            <!-- Smart Input -->
+            <div class="mb-3 smart-input-wrapper">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-magic me-1" style="color:var(--accent);"></i>Smart Input
+                    <span style="font-weight:400;font-size:0.78rem;color:var(--text-light);margin-left:6px;">Type naturally, e.g. "Finish report tomorrow 5pm #work !high"</span>
+                </label>
+                <div class="position-relative">
+                    <input type="text" class="form-control smart-input-field" id="smartInput"
+                           placeholder='Try: "Buy groceries tomorrow 3pm #shopping !medium"'
+                           autocomplete="off"
+                           style="padding-right:40px;border-color:var(--accent);background:rgba(201,152,90,0.03);">
+                    <button type="button" class="smart-input-clear" id="smartInputClear" title="Clear smart input" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="smartPreview" class="smart-preview" style="display:none;"></div>
+            </div>
+
+            <div style="position:relative;text-align:center;margin-bottom:1rem;">
+                <hr style="border-color:var(--border);">
+                <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card-bg);padding:0 12px;font-size:0.75rem;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;">or fill manually</span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Title</label>
+                    <input type="text" class="form-control" id="addTitle" placeholder="What needs to be done?">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-semibold">Description</label>
+                    <input type="text" class="form-control" id="addDesc" placeholder="Add some details...">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label fw-semibold">Priority</label>
+                    <select class="form-control" id="addPriority">
+                        <option value="low">🟢 Low</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="high">🔴 High</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select class="form-control" id="addCategory">
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold"><i class="fas fa-calendar-day me-1 text-muted"></i>Due Date</label>
+                    <input type="datetime-local" class="form-control" id="addDueDate" step="60">
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold"><i class="fas fa-bell me-1 text-muted"></i>Reminder</label>
+                    <input type="datetime-local" class="form-control" id="addReminder" step="60">
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-app w-100 py-2" id="addTaskBtn">
+                        <i class="fas fa-paper-plane me-1"></i>Add Task
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Task Grid Container -->
+    <div id="taskContainer">
+        {% if allToDo|length == 0 %}
+        <div class="empty-state app-card p-4 p-md-5" id="emptyState">
+            <i class="fas fa-inbox d-block"></i>
+            <h4 class="fw-bold mt-2">No tasks found</h4>
+            <p>{% if search or filter_status != 'all' or filter_priority != 'all' or filter_category != 'all' %}Try adjusting your filters.{% else %}Click <strong>"New Task"</strong> to get started!{% endif %}</p>
+        </div>
+        {% else %}
+        <div class="row g-3" id="taskGrid">
+            {% for Todo in allToDo %}
+            {% set todo_due = Todo.due_date|to_local if Todo.due_date else None %}
+            {% set now_local = now_utc|to_local %}
+            {% set is_overdue = todo_due and todo_due < now_local and not Todo.get('completed', False) %}
+            <div class="col-12 col-sm-6 col-lg-4 anim-fade-up task-col" data-id="{{ Todo._id }}" style="animation-delay:{{ loop.index0 * 0.06 }}s;">
+                <div class="task-card d-flex flex-column {{ 'task-completed' if Todo.get('completed', False) }} {{ 'task-overdue' if is_overdue }}"
+                     data-priority="{{ Todo.get('priority', 'medium') }}">
+                    {% if Todo.get('completed', False) %}
+                    <button class="task-dismiss-btn" onclick="dismissTask('{{ Todo._id }}')" title="Remove from view"><i class="fas fa-times"></i></button>
+                    {% endif %}
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <button class="task-check-btn {{ 'checked' if Todo.get('completed', False) }}"
+                                onclick="toggleTask('{{ Todo._id }}', this)" title="Toggle complete">
+                            <i class="fas {{ 'fa-check-circle' if Todo.get('completed', False) else 'fa-circle' }}"></i>
+                        </button>
+                        <span class="priority-badge priority-{{ Todo.get('priority', 'medium') }}">{{ Todo.get('priority', 'medium')|capitalize }}</span>
+                        <span class="category-badge">{{ Todo.get('category', 'General') }}</span>
+                        {% if is_overdue %}<span class="overdue-badge"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>{% endif %}
+                    </div>
+                    <div class="task-title {{ 'text-decoration-line-through' if Todo.get('completed', False) }}">{{ Todo.title }}</div>
+                    <div class="task-desc flex-grow-1">{{ Todo.desc }}</div>
+                    <div class="task-meta mt-2"><span><i class="fas fa-calendar-alt"></i>{{ (Todo.date_created|to_local).strftime('%b %d, %Y • %I:%M %p') }}</span></div>
+                    {% if Todo.due_date %}<div class="task-meta"><span style="{{ 'color:var(--danger);font-weight:600;' if is_overdue else 'color:var(--primary);' }}"><i class="fas fa-calendar-day"></i>Due: {{ (Todo.due_date|to_local).strftime('%b %d, %Y • %I:%M %p') }}</span></div>{% endif %}
+                    <div class="task-meta">{% if Todo.reminder_time %}<span style="color:var(--accent);"><i class="fas fa-bell"></i>{{ (Todo.reminder_time|to_local).strftime('%b %d, %Y • %I:%M %p') }}</span>{% else %}<span><i class="fas fa-bell-slash"></i>No reminder</span>{% endif %}</div>
+                    <div class="task-actions d-flex gap-2">
+                        {% if not Todo.get('completed', False) %}
+                        <a href="/update/{{ Todo._id }}" class="btn btn-app-outline btn-sm flex-grow-1"><i class="fas fa-pen me-1"></i>Edit</a>
+                        <button class="btn btn-app-danger btn-sm flex-grow-1" onclick="confirmDelete('{{ Todo._id }}')"><i class="fas fa-trash me-1"></i>Delete</button>
+                        {% else %}
+                        <button class="btn btn-sm flex-grow-1" style="background:rgba(90,158,111,0.1);color:var(--success);border:1px solid rgba(90,158,111,0.2);font-weight:600;font-size:0.82rem;cursor:default;" disabled><i class="fas fa-check me-1"></i>Completed</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="text-center text-muted mt-4" id="taskCount" style="font-size:0.85rem;">Showing {{ allToDo|length }} task{{ 's' if allToDo|length != 1 else '' }}</p>
         {% endif %}
     </div>
-
-    <p class="text-center text-muted mt-5">✨ Stay organized and boost your productivity! ✨</p>
 </div>
 
-<!-- Toast Container -->
-<div class="toast-container"></div>
-
-<!-- Bootstrap Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- SweetAlert2 for Confirmation -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    function showToast(message) {
-        const container = document.querySelector('.toast-container');
-        const toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-white bg-primary border-0 show';
-        toast.role = 'alert';
-        toast.style.marginBottom = '10px';
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>`;
-        container.appendChild(toast);
+(function() {
 
-        setTimeout(() => {
-            toast.classList.remove('show');
-            toast.remove();
-        }, 3000);
+    // ── Smart Input Parser ──
+    let smartParseTimer;
+    const smartInput = document.getElementById('smartInput');
+    const smartPreview = document.getElementById('smartPreview');
+    const smartClear = document.getElementById('smartInputClear');
+
+    smartInput.addEventListener('input', function() {
+        const val = this.value.trim();
+        smartClear.style.display = val ? 'flex' : 'none';
+
+        clearTimeout(smartParseTimer);
+        if (!val) {
+            smartPreview.style.display = 'none';
+            return;
+        }
+
+        smartParseTimer = setTimeout(async () => {
+            try {
+                const res = await fetch('/api/smart-parse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: val })
+                });
+                const data = await res.json();
+                _showSmartPreview(data);
+                _applySmartParse(data);
+            } catch(e) {}
+        }, 350);
+    });
+
+    // Enter key in smart input triggers add
+    smartInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('addTaskBtn').click();
+        }
+    });
+
+    smartClear.addEventListener('click', function() {
+        smartInput.value = '';
+        smartPreview.style.display = 'none';
+        smartClear.style.display = 'none';
+        // Clear auto-filled fields
+        document.getElementById('addTitle').value = '';
+        document.getElementById('addDueDate').value = '';
+        document.getElementById('addPriority').value = 'medium';
+        document.getElementById('addCategory').value = 'General';
+    });
+
+    function _showSmartPreview(data) {
+        if (!data.title && !data.due_date_str && !data.category && !data.priority) {
+            smartPreview.style.display = 'none';
+            return;
+        }
+
+        let chips = '';
+        if (data.title) chips += `<span class="smart-chip smart-chip-title"><i class="fas fa-font"></i>${_escHtml(data.title)}</span>`;
+        if (data.due_date_str) chips += `<span class="smart-chip smart-chip-date"><i class="fas fa-calendar-day"></i>${_escHtml(data.due_date_str)}</span>`;
+        if (data.category) chips += `<span class="smart-chip smart-chip-category"><i class="fas fa-tag"></i>${_escHtml(data.category)}</span>`;
+        if (data.priority) {
+            const pIcon = data.priority === 'high' ? '🔴' : data.priority === 'medium' ? '🟡' : '🟢';
+            chips += `<span class="smart-chip smart-chip-priority">${pIcon} ${data.priority.charAt(0).toUpperCase() + data.priority.slice(1)}</span>`;
+        }
+
+        smartPreview.innerHTML = chips;
+        smartPreview.style.display = 'flex';
     }
 
-    function confirmDelete(srno) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This task will be deleted permanently!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/delete/${srno}`;
+    function _applySmartParse(data) {
+        if (data.title) document.getElementById('addTitle').value = data.title;
+        if (data.due_date_iso) document.getElementById('addDueDate').value = data.due_date_iso;
+        if (data.priority) document.getElementById('addPriority').value = data.priority;
+        if (data.category) {
+            const sel = document.getElementById('addCategory');
+            for (let opt of sel.options) {
+                if (opt.value.toLowerCase() === data.category.toLowerCase()) {
+                    sel.value = opt.value;
+                    break;
+                }
             }
+        }
+
+        // Highlight auto-filled fields briefly
+        ['addTitle', 'addDueDate', 'addPriority', 'addCategory'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.add('smart-filled');
+            setTimeout(() => el.classList.remove('smart-filled'), 1500);
         });
     }
+
+    function _escHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // ── Helper: build card HTML from task JSON ──
+    function buildCard(t) {
+        const overdueStyle = t.is_overdue ? 'color:var(--danger);font-weight:600;' : 'color:var(--primary);';
+        const completedClass = t.completed ? 'task-completed' : '';
+        const overdueClass = t.is_overdue ? 'task-overdue' : '';
+        const titleStrike = t.completed ? 'text-decoration-line-through' : '';
+        const checkIcon = t.completed ? 'fa-check-circle' : 'fa-circle';
+        const checkedClass = t.completed ? 'checked' : '';
+
+        let dismissHtml = t.completed ? `<button class="task-dismiss-btn" onclick="dismissTask('${t.id}')" title="Remove from view"><i class="fas fa-times"></i></button>` : '';
+        let overdueBadge = t.is_overdue ? `<span class="overdue-badge"><i class="fas fa-exclamation-triangle me-1"></i>Overdue</span>` : '';
+        let dueDateHtml = t.due_date ? `<div class="task-meta"><span style="${overdueStyle}"><i class="fas fa-calendar-day"></i>Due: ${t.due_date}</span></div>` : '';
+        let reminderHtml = t.reminder_time
+            ? `<div class="task-meta"><span style="color:var(--accent);"><i class="fas fa-bell"></i>${t.reminder_time}</span></div>`
+            : `<div class="task-meta"><span><i class="fas fa-bell-slash"></i>No reminder</span></div>`;
+
+        let actionsHtml = t.completed
+            ? `<button class="btn btn-sm flex-grow-1" style="background:rgba(90,158,111,0.1);color:var(--success);border:1px solid rgba(90,158,111,0.2);font-weight:600;font-size:0.82rem;cursor:default;" disabled><i class="fas fa-check me-1"></i>Completed</button>`
+            : `<a href="/update/${t.id}" class="btn btn-app-outline btn-sm flex-grow-1"><i class="fas fa-pen me-1"></i>Edit</a>
+               <button class="btn btn-app-danger btn-sm flex-grow-1" onclick="confirmDelete('${t.id}')"><i class="fas fa-trash me-1"></i>Delete</button>`;
+
+        return `<div class="col-12 col-sm-6 col-lg-4 anim-fade-up task-col" data-id="${t.id}">
+            <div class="task-card d-flex flex-column ${completedClass} ${overdueClass}" data-priority="${t.priority}">
+                ${dismissHtml}
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <button class="task-check-btn ${checkedClass}" onclick="toggleTask('${t.id}', this)" title="Toggle complete"><i class="fas ${checkIcon}"></i></button>
+                    <span class="priority-badge priority-${t.priority}">${t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}</span>
+                    <span class="category-badge">${t.category}</span>
+                    ${overdueBadge}
+                </div>
+                <div class="task-title ${titleStrike}">${t.title}</div>
+                <div class="task-desc flex-grow-1">${t.desc}</div>
+                <div class="task-meta mt-2"><span><i class="fas fa-calendar-alt"></i>${t.date_created}</span></div>
+                ${dueDateHtml}
+                ${reminderHtml}
+                <div class="task-actions d-flex gap-2">${actionsHtml}</div>
+            </div>
+        </div>`;
+    }
+
+    // ── Update stats ──
+    function updateStats(s) {
+        if (!s) return;
+        document.getElementById('statTotal').textContent = s.total;
+        document.getElementById('statDone').textContent = s.completed;
+        document.getElementById('statPending').textContent = s.pending;
+        const pct = s.total > 0 ? ((s.completed / s.total) * 100).toFixed(1) : '0';
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = pct + '% complete';
+    }
+
+    // ── Render full task list from JSON ──
+    function renderTasks(tasks, stats) {
+        const container = document.getElementById('taskContainer');
+        updateStats(stats);
+
+        if (tasks.length === 0) {
+            container.innerHTML = `<div class="empty-state app-card p-4 p-md-5" id="emptyState">
+                <i class="fas fa-inbox d-block"></i><h4 class="fw-bold mt-2">No tasks found</h4>
+                <p>Try adjusting your filters or add a new task.</p></div>`;
+            return;
+        }
+
+        let html = '<div class="row g-3" id="taskGrid">';
+        tasks.forEach(t => { html += buildCard(t); });
+        html += '</div>';
+        html += `<p class="text-center text-muted mt-4" id="taskCount" style="font-size:0.85rem;">Showing ${tasks.length} task${tasks.length !== 1 ? 's' : ''}</p>`;
+        container.innerHTML = html;
+        initSortable();
+    }
+
+    // ── Fetch filtered tasks via AJAX ──
+    async function fetchTasks() {
+        const params = new URLSearchParams({
+            search: document.getElementById('searchInput').value,
+            status: document.getElementById('filterStatus').value,
+            priority: document.getElementById('filterPriority').value,
+            category: document.getElementById('filterCategory').value,
+            sort: document.getElementById('filterSort').value
+        });
+        try {
+            const res = await fetch('/api/tasks?' + params);
+            const data = await res.json();
+            renderTasks(data.tasks, data.stats);
+        } catch(e) {}
+    }
+
+    // ── Filters & search (no reload) ──
+    let searchTimer;
+    document.getElementById('searchInput').addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(fetchTasks, 300);
+    });
+    document.getElementById('filterStatus').addEventListener('change', fetchTasks);
+    document.getElementById('filterPriority').addEventListener('change', fetchTasks);
+    document.getElementById('filterCategory').addEventListener('change', fetchTasks);
+    document.getElementById('filterSort').addEventListener('change', fetchTasks);
+
+    // ── Add Task via AJAX ──
+    document.getElementById('addTaskBtn').addEventListener('click', async function() {
+        const btn = this;
+        const title = document.getElementById('addTitle').value.trim();
+        const desc = document.getElementById('addDesc').value.trim();
+
+        if (!title) { showSnackbar('Title is required.', 'danger'); document.getElementById('addTitle').focus(); return; }
+        if (!desc) { showSnackbar('Description is required.', 'danger'); document.getElementById('addDesc').focus(); return; }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
+
+        try {
+            const res = await fetch('/api/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title, desc,
+                    priority: document.getElementById('addPriority').value,
+                    category: document.getElementById('addCategory').value,
+                    due_date: document.getElementById('addDueDate').value,
+                    reminder: document.getElementById('addReminder').value
+                })
+            });
+            const data = await res.json();
+
+            if (data.status === 'ok') {
+                // Remove empty state if present
+                document.getElementById('emptyState')?.remove();
+
+                let grid = document.getElementById('taskGrid');
+                if (!grid) {
+                    const container = document.getElementById('taskContainer');
+                    container.innerHTML = '<div class="row g-3" id="taskGrid"></div><p class="text-center text-muted mt-4" id="taskCount" style="font-size:0.85rem;"></p>';
+                    grid = document.getElementById('taskGrid');
+                }
+
+                grid.insertAdjacentHTML('beforeend', buildCard(data.task));
+                updateStats(data.stats);
+
+                const count = grid.querySelectorAll('.task-col').length;
+                const countEl = document.getElementById('taskCount');
+                if (countEl) countEl.textContent = `Showing ${count} task${count !== 1 ? 's' : ''}`;
+
+                // Clear form
+                document.getElementById('addTitle').value = '';
+                document.getElementById('addDesc').value = '';
+                document.getElementById('addDueDate').value = '';
+                document.getElementById('addReminder').value = '';
+                document.getElementById('addPriority').value = 'medium';
+
+                // Collapse form
+                const collapse = bootstrap.Collapse.getInstance(document.getElementById('addTaskForm'));
+                if (collapse) collapse.hide();
+
+                showSnackbar('Task added!', 'success');
+                initSortable();
+            } else {
+                showSnackbar(data.message || 'Failed to add task.', 'danger');
+            }
+        } catch(e) {
+            showSnackbar('Failed to add task.', 'danger');
+        }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Add Task';
+    });
+
+    // ── Toggle complete ──
+    window.toggleTask = async function(id, btn) {
+        btn.disabled = true;
+        try {
+            const res = await fetch(`/api/toggle/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                const card = btn.closest('.task-card');
+                const title = card.querySelector('.task-title');
+                const actionsDiv = card.querySelector('.task-actions');
+
+                if (data.completed) {
+                    card.classList.add('task-completed');
+                    card.classList.remove('task-overdue');
+                    btn.classList.add('checked');
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    title.classList.add('text-decoration-line-through');
+                    card.querySelector('.overdue-badge')?.remove();
+                    if (!card.querySelector('.task-dismiss-btn')) {
+                        const d = document.createElement('button');
+                        d.className = 'task-dismiss-btn'; d.title = 'Remove from view';
+                        d.innerHTML = '<i class="fas fa-times"></i>';
+                        d.onclick = () => dismissTask(id);
+                        card.prepend(d);
+                    }
+                    actionsDiv.innerHTML = `<button class="btn btn-sm flex-grow-1" style="background:rgba(90,158,111,0.1);color:var(--success);border:1px solid rgba(90,158,111,0.2);font-weight:600;font-size:0.82rem;cursor:default;" disabled><i class="fas fa-check me-1"></i>Completed</button>`;
+                    showSnackbar('Task completed!', 'success');
+                } else {
+                    card.classList.remove('task-completed');
+                    btn.classList.remove('checked');
+                    btn.innerHTML = '<i class="fas fa-circle"></i>';
+                    title.classList.remove('text-decoration-line-through');
+                    card.querySelector('.task-dismiss-btn')?.remove();
+                    actionsDiv.innerHTML = `<a href="/update/${id}" class="btn btn-app-outline btn-sm flex-grow-1"><i class="fas fa-pen me-1"></i>Edit</a><button class="btn btn-app-danger btn-sm flex-grow-1" onclick="confirmDelete('${id}')"><i class="fas fa-trash me-1"></i>Delete</button>`;
+                    showSnackbar('Task marked as pending.', 'success');
+                }
+                updateStats(data.stats);
+            }
+        } catch(e) { showSnackbar('Failed to update.', 'danger'); }
+        btn.disabled = false;
+    };
+
+    // ── Remove card with animation ──
+    function removeCard(id, cb) {
+        const col = document.querySelector(`[data-id="${id}"]`);
+        if (col) {
+            col.style.transition = 'all 0.35s ease';
+            col.style.opacity = '0';
+            col.style.transform = 'scale(0.92) translateY(-8px)';
+            setTimeout(() => { col.remove(); updateTaskCount(); if (cb) cb(); }, 350);
+        } else if (cb) cb();
+    }
+
+    function updateTaskCount() {
+        const grid = document.getElementById('taskGrid');
+        const count = grid ? grid.querySelectorAll('.task-col').length : 0;
+        const countEl = document.getElementById('taskCount');
+        if (count === 0) {
+            document.getElementById('taskContainer').innerHTML = `<div class="empty-state app-card p-4 p-md-5" id="emptyState"><i class="fas fa-inbox d-block"></i><h4 class="fw-bold mt-2">No tasks found</h4><p>Click <strong>"New Task"</strong> to get started!</p></div>`;
+        } else if (countEl) {
+            countEl.textContent = `Showing ${count} task${count !== 1 ? 's' : ''}`;
+        }
+    }
+
+    // ── Dismiss ──
+    window.dismissTask = async function(id) {
+        try {
+            const res = await fetch(`/api/dismiss-task/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'ok') removeCard(id, () => { updateStats(data.stats); showSnackbar('Task removed.', 'info'); });
+        } catch(e) {}
+    };
+
+    // ── Delete ──
+    window.confirmDelete = function(id) {
+        Swal.fire({
+            title: 'Delete this task?', text: "This can't be undone.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#c0514e', cancelButtonColor: '#718096',
+            confirmButtonText: '<i class="fas fa-trash me-1"></i>Yes, delete', cancelButtonText: 'Cancel',
+            customClass: { popup: 'rounded-3' }
+        }).then(async (r) => {
+            if (r.isConfirmed) {
+                try {
+                    const res = await fetch(`/api/delete/${id}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.status === 'ok') removeCard(id, () => { updateStats(data.stats); showSnackbar('Task deleted.', 'success'); });
+                } catch(e) { showSnackbar('Failed to delete.', 'danger'); }
+            }
+        });
+    };
+
+    // ── Drag & drop ──
+    function initSortable() {
+        const grid = document.getElementById('taskGrid');
+        if (grid && !grid._sortable) {
+            grid._sortable = new Sortable(grid, {
+                animation: 200, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen', handle: '.task-card',
+                onEnd: async function() {
+                    const order = Array.from(grid.querySelectorAll('.task-col')).map(c => c.dataset.id);
+                    try { await fetch('/api/reorder', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order }) }); } catch(e) {}
+                }
+            });
+        }
+    }
+    initSortable();
+
+})();
 </script>
 
 {% endblock body %}

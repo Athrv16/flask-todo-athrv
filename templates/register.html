@@ -2,18 +2,31 @@
 {% block title %}Register{% endblock %}
 {% block content %}
 
-<h2 class="text-center">Register</h2>
-<form method="POST" class="mx-auto" style="max-width: 400px;">
-    <div class="mb-3">
-        <label>Username</label>
-        <input type="text" name="username" class="form-control" required>
+<h2 class="text-center mb-1">Create Account</h2>
+<p class="text-center text-muted mb-4" style="font-size:0.88rem;">Start managing your tasks today</p>
+
+<form method="POST">
+    <div class="mb-3 anim-fade-up anim-delay-1">
+        <label class="form-label fw-semibold">
+            <i class="fas fa-user me-1 text-muted"></i>Username
+        </label>
+        <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
     </div>
-    <div class="mb-3">
-        <label>Password</label>
-        <input type="password" name="password" class="form-control" required>
+    <div class="mb-4 anim-fade-up anim-delay-2">
+        <label class="form-label fw-semibold">
+            <i class="fas fa-lock me-1 text-muted"></i>Password
+        </label>
+        <input type="password" name="password" class="form-control" placeholder="Create a password" required>
     </div>
-    <button type="submit" class="btn btn-success w-100">Register</button>
+    <div class="anim-fade-up anim-delay-3">
+        <button type="submit" class="btn btn-app w-100 py-2">
+            <i class="fas fa-user-plus me-1"></i>Register
+        </button>
+    </div>
 </form>
-<p class="text-center mt-3">Already have an account? <a href="/login">Login</a></p>
+<p class="text-center mt-4 mb-0 anim-fade-in anim-delay-4" style="font-size:0.88rem;">
+    Already have an account?
+    <a href="/login" style="color:var(--primary);font-weight:600;text-decoration:none;">Sign in</a>
+</p>
 
 {% endblock %}

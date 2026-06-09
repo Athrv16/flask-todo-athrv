@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f1219">
+    <title>Daily Flow — Organize Your Day</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='todo.png') }}" type="image/x-icon" />
+</head>
+<body class="landing-body">
+
+    <!-- Ribbon Background (reuse auth ribbons) -->
+    <div class="auth-ribbon auth-ribbon-1"></div>
+    <div class="auth-ribbon auth-ribbon-2"></div>
+    <div class="auth-ribbon auth-ribbon-3"></div>
+    <div class="auth-ribbon auth-ribbon-4"></div>
+    <div class="auth-orb auth-orb-1"></div>
+    <div class="auth-orb auth-orb-2"></div>
+    <div class="auth-orb auth-orb-3"></div>
+
+    <!-- Navbar -->
+    <nav class="landing-nav">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="landing-brand" href="/">
+                <i class="fas fa-check-double"></i> Daily Flow
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="/login" class="btn landing-btn-outline">Log In</a>
+                <a href="/register" class="btn landing-btn-primary">Sign Up Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+        <div class="container">
+            <div class="row align-items-center g-4 g-lg-5">
+                <div class="col-12 col-lg-6 landing-hero-text">
+                    <div class="landing-badge anim-fade-up">
+                        <i class="fas fa-sparkles"></i> Smart Task Management
+                    </div>
+                    <h1 class="anim-fade-up" style="animation-delay:0.1s;">
+                        Organize your day,<br>
+                        <span class="landing-gradient-text">effortlessly.</span>
+                    </h1>
+                    <p class="anim-fade-up" style="animation-delay:0.2s;">
+                        Daily Flow helps you capture tasks in natural language, set smart reminders, and stay on top of your priorities — all from a clean, distraction-free interface.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 anim-fade-up" style="animation-delay:0.3s;">
+                        <a href="/register" class="btn landing-btn-primary landing-btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Get Started — It's Free
+                        </a>
+                        <a href="#features" class="btn landing-btn-ghost landing-btn-lg">
+                            <i class="fas fa-arrow-down me-2"></i>Learn More
+                        </a>
+                    </div>
+                    <div class="landing-social-proof anim-fade-up" style="animation-delay:0.4s;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="landing-avatars">
+                                <div class="landing-avatar" style="background:#5b6abf;">A</div>
+                                <div class="landing-avatar" style="background:#c9985a;">P</div>
+                                <div class="landing-avatar" style="background:#5a9e6f;">R</div>
+                            </div>
+                            <span>Trusted by productive people everywhere</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6 anim-fade-up" style="animation-delay:0.25s;">
+                    <div class="landing-preview">
+                        <div class="landing-preview-header">
+                            <div class="landing-dot" style="background:#c0514e;"></div>
+                            <div class="landing-dot" style="background:#c9985a;"></div>
+                            <div class="landing-dot" style="background:#5a9e6f;"></div>
+                            <span style="margin-left:8px;font-size:0.72rem;color:rgba(255,255,255,0.3);">Daily Flow</span>
+                        </div>
+                        <div class="landing-preview-body">
+                            <!-- Mock task cards -->
+                            <div class="landing-mock-task" style="border-left-color:#c0514e;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fas fa-circle" style="font-size:0.6rem;color:rgba(255,255,255,0.15);"></i>
+                                    <span class="landing-mock-badge" style="background:rgba(192,81,78,0.15);color:#e8736f;">High</span>
+                                    <span class="landing-mock-badge" style="background:rgba(91,106,191,0.12);color:#7c8acf;">Work</span>
+                                </div>
+                                <div class="landing-mock-title">Finish quarterly report</div>
+                                <div class="landing-mock-meta"><i class="fas fa-calendar-day"></i> Due: Tomorrow 5:00 PM</div>
+                            </div>
+                            <div class="landing-mock-task" style="border-left-color:#c9985a;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fas fa-circle" style="font-size:0.6rem;color:rgba(255,255,255,0.15);"></i>
+                                    <span class="landing-mock-badge" style="background:rgba(201,152,90,0.15);color:#d4ab76;">Medium</span>
+                                    <span class="landing-mock-badge" style="background:rgba(91,106,191,0.12);color:#7c8acf;">Personal</span>
+                                </div>
+                                <div class="landing-mock-title">Buy groceries for the week</div>
+                                <div class="landing-mock-meta"><i class="fas fa-bell"></i> Reminder: Today 6:30 PM</div>
+                            </div>
+                            <div class="landing-mock-task landing-mock-done" style="border-left-color:#5a9e6f;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <i class="fas fa-check-circle" style="font-size:0.6rem;color:#5a9e6f;"></i>
+                                    <span class="landing-mock-badge" style="background:rgba(90,158,111,0.15);color:#7ec496;">Low</span>
+                                    <span class="landing-mock-badge" style="background:rgba(91,106,191,0.12);color:#7c8acf;">Study</span>
+                                </div>
+                                <div class="landing-mock-title" style="text-decoration:line-through;opacity:0.5;">Read chapter 5 notes</div>
+                                <div class="landing-mock-meta" style="opacity:0.4;"><i class="fas fa-check"></i> Completed</div>
+                            </div>
+                            <!-- Mock smart input -->
+                            <div class="landing-mock-input">
+                                <i class="fas fa-magic" style="color:#c9985a;font-size:0.75rem;"></i>
+                                <span>Call dentist tomorrow 2pm #health !high</span>
+                                <span class="landing-mock-cursor"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="landing-features" id="features">
+        <div class="container">
+            <div class="text-center mb-4 mb-md-5">
+                <h2 class="landing-section-title anim-fade-up">Everything you need to stay productive</h2>
+                <p class="landing-section-sub anim-fade-up" style="animation-delay:0.08s;">Simple tools, powerful results. No bloat, no distractions.</p>
+            </div>
+            <div class="row g-3 g-md-4">
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.1s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(91,106,191,0.1);color:var(--primary);">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h5>Smart Input</h5>
+                        <p>Type naturally like "Finish report tomorrow 5pm #work !high" and we parse it for you.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.16s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(201,152,90,0.1);color:var(--accent);">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h5>Smart Reminders</h5>
+                        <p>Get browser notifications with sound, popup alerts, and snooze — never miss a deadline.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.22s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(90,158,111,0.1);color:var(--success);">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <h5>Priority & Categories</h5>
+                        <p>Organize tasks by priority (high, medium, low) and categories like Work, Study, Health.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.28s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(192,81,78,0.1);color:var(--danger);">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <h5>Search & Filter</h5>
+                        <p>Find tasks instantly with real-time search and filter by status, priority, or category.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.34s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(124,138,207,0.1);color:var(--primary-light);">
+                            <i class="fas fa-grip-vertical"></i>
+                        </div>
+                        <h5>Drag & Drop</h5>
+                        <p>Reorder your tasks with smooth drag-and-drop. Your custom order is saved automatically.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4 anim-fade-up" style="animation-delay:0.4s;">
+                    <div class="landing-feature-card">
+                        <div class="landing-feature-icon" style="background:rgba(201,152,90,0.1);color:var(--accent-light);">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <h5>Dark Mode</h5>
+                        <p>Easy on the eyes. Switch between light and dark themes with a single click.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="landing-how">
+        <div class="container">
+            <div class="text-center mb-4 mb-md-5">
+                <h2 class="landing-section-title anim-fade-up">Get started in seconds</h2>
+                <p class="landing-section-sub anim-fade-up" style="animation-delay:0.08s;">Three simple steps to a more organized day.</p>
+            </div>
+            <div class="row g-3 g-md-4 justify-content-center">
+                <div class="col-12 col-md-4 anim-fade-up" style="animation-delay:0.1s;">
+                    <div class="landing-step-card">
+                        <div class="landing-step-num">1</div>
+                        <h5>Create an Account</h5>
+                        <p>Sign up in seconds with just a username and password. No email verification needed.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 anim-fade-up" style="animation-delay:0.2s;">
+                    <div class="landing-step-card">
+                        <div class="landing-step-num">2</div>
+                        <h5>Add Your Tasks</h5>
+                        <p>Use smart input or fill in manually. Set due dates, priorities, and reminders.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 anim-fade-up" style="animation-delay:0.3s;">
+                    <div class="landing-step-card">
+                        <div class="landing-step-num">3</div>
+                        <h5>Stay on Track</h5>
+                        <p>Get reminders, track progress, and check off tasks as you complete them.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="landing-cta">
+        <div class="container text-center">
+            <div class="landing-cta-card anim-fade-up">
+                <h2>Ready to get organized?</h2>
+                <p>Join Daily Flow and take control of your day — completely free.</p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/register" class="btn landing-btn-primary landing-btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Create Free Account
+                    </a>
+                    <a href="/login" class="btn landing-btn-outline landing-btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Log In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <span style="font-weight:600;color:rgba(255,255,255,0.7);"><i class="fas fa-check-double me-1" style="color:var(--primary-light);"></i>Daily Flow</span>
+                    <span style="margin-left:8px;">© 2025 — Built with <i class="fas fa-heart" style="color:var(--danger);font-size:0.7rem;"></i> in India</span>
+                </div>
+                <div class="d-flex gap-3">
+                    
+                    <a href="/contact" style="color:rgba(255,255,255,0.4);text-decoration:none;font-size:0.85rem;transition:color 0.2s;"><i class="fas fa-envelope me-1"></i>Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
