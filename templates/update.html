@@ -1,37 +1,71 @@
 {% extends 'base.html' %}
 {% block body %}
-<div class="container my-4">
-    <h2>Welcome, {{ current_user.username }}!</h2>
-    <form action="{{ url_for('update', todo_id=todo._id) }}" method="POST">
 
-        <div class="mb-3">
-            <label>To-Do Title</label>
-            <input type="text" name="title" class="form-control" value="{{ todo.title }}" required>
-        </div>
-        <div class="mb-3">
-            <label>Description</label>
-            <input type="text" name="desc" class="form-control" value="{{ todo.desc }}" required>
-        </div>
-        <button type="submit" class="btn btn-success">Update</button>
-    </form>
+<div class="container my-3 my-md-4 px-3" style="max-width: 600px;">
 
-    
+    <div class="page-header">
+        <h1><i class="fas fa-pen-to-square me-2"></i>Edit Task</h1>
+        <p>Update the details below</p>
+    </div>
 
-     
-        <tbody>
-            {% for todo in allToDo %}
-            <tr>
-                <td>{{ todo.title }}</td>
-                <td>{{ todo.desc }}</td>
-                <td>{{ todo.date_created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                <td>
-                  <a href="{{ url_for('update', todo_id=str(todo._id)) }}" class="btn btn-primary btn-sm">Update</a>
-                  <a href="{{ url_for('delete', todo_id=str(todo._id)) }}" class="btn btn-danger btn-sm">Delete</a>
-                  
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="app-card p-3 p-md-4 anim-fade-up anim-delay-1">
+        <form action="{{ url_for('update', todo_id=todo._id) }}" method="POST">
+            <div class="mb-3 anim-fade-up anim-delay-2">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-heading me-1 text-muted"></i>Title
+                </label>
+                <input type="text" name="title" class="form-control" value="{{ todo.title }}" required>
+            </div>
+            <div class="mb-3 anim-fade-up anim-delay-3">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-align-left me-1 text-muted"></i>Description
+                </label>
+                <input type="text" name="desc" class="form-control" value="{{ todo.desc }}">
+            </div>
+            <div class="row g-3 mb-3 anim-fade-up anim-delay-4">
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Priority</label>
+                    <select class="form-control" name="priority">
+                        <option value="low" {{ 'selected' if todo.get('priority','medium')=='low' }}>🟢 Low</option>
+                        <option value="medium" {{ 'selected' if todo.get('priority','medium')=='medium' }}>🟡 Medium</option>
+                        <option value="high" {{ 'selected' if todo.get('priority','medium')=='high' }}>🔴 High</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Category</label>
+                    <select class="form-control" name="category">
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {{ 'selected' if todo.get('category','General')==cat }}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 anim-fade-up anim-delay-5">
+                <label class="form-label fw-semibold">
+                    <i class="fas fa-calendar-day me-1 text-muted"></i>Due Date (optional)
+                </label>
+                <input type="datetime-local" class="form-control" name="due_date" step="60"
+                       value="{% if todo.due_date %}{{ (todo.due_date|to_local).strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+            </div>
+            <div class="mb-4 anim-fade-up anim-delay-6">
+                <label for="reminder" class="form-label fw-semibold">
+                    <i class="fas fa-bell me-1 text-muted"></i>Reminder Time (optional)
+                </label>
+                <input type="datetime-local" class="form-control" name="reminder" id="reminder"
+                       step="60"
+                       value="{% if todo.reminder_time %}{{ (todo.reminder_time|to_local).strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2 anim-fade-up anim-delay-7">
+                <button type="submit" class="btn btn-app flex-grow-1">
+                    <i class="fas fa-save me-1"></i>Update Task
+                </button>
+                <a href="{{ url_for('index') }}" class="btn btn-app-outline flex-grow-1">
+                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
 </div>
+
 {% endblock %}
