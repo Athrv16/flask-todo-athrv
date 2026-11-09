@@ -13,9 +13,15 @@ from flask_mail import Mail, Message as MailMessage
 from smart_parser import parse_smart_input
 
 app = Flask(__name__)
-app.secret_key = 'hello_world'
+app.secret_key = os.getenv('SECRET_KEY')
 
-app.config["MONGO_URI"] = "mongodb+srv://atharvakantode16:todoproject162004@to-do-cluster.whftpzh.mongodb.net/tododb?retryWrites=true&w=majority&appName=to-do-cluster"
+mongo_uri = os.getenv('MONGO_URI')
+if not mongo_uri:
+    raise RuntimeError('MONGO_URI is required. Set it in the deployment environment.')
+if not app.secret_key:
+    raise RuntimeError('SECRET_KEY is required. Set it in the deployment environment.')
+
+app.config["MONGO_URI"] = mongo_uri
 mongo = PyMongo(app)
 
 login_manager = LoginManager()
